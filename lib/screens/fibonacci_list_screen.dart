@@ -1,4 +1,3 @@
-// lib/screens/fibonacci_list_screen.dart
 import 'package:flutter/material.dart';
 import '../utils/fibonacci_utils.dart';
 import '../widgets/fibonacci_bottom_sheet.dart';
@@ -23,6 +22,7 @@ class _FibonacciListScreenState extends State<FibonacciListScreen> {
     2: Icons.close,
   };
   int? _highlightedIndex;
+  Color? _highlightColor;
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -41,23 +41,21 @@ class _FibonacciListScreenState extends State<FibonacciListScreen> {
   void _scrollToHighlighted() {
     if (_highlightedIndex != null) {
       _scrollController.animateTo(
-        _highlightedIndex! * 60.0,
+        _highlightedIndex! * 60.0 -
+            (MediaQuery.of(context).size.height / 2) +
+            30.0,
         duration: const Duration(milliseconds: 500),
         curve: Curves.easeInOut,
       );
     }
   }
 
-  void _highlightRestoredItem(int index) {
+  void _highlightRestoredItem(int index, Color color) {
     setState(() {
       _highlightedIndex = _fibonacciData.indexWhere(
         (item) => item["index"] == index,
       );
-    });
-    Future.delayed(const Duration(seconds: 2), () {
-      setState(() {
-        _highlightedIndex = null; // ลบไฮไลต์หลัง 2 วินาที
-      });
+      _highlightColor = color;
     });
   }
 
@@ -82,13 +80,19 @@ class _FibonacciListScreenState extends State<FibonacciListScreen> {
               index: originalIndex, // ✅ ใช้ index ดั้งเดิม
               icon: icon,
               isHighlighted: index == _highlightedIndex,
+              highlightColor: _highlightColor,
               isSameType: isSameType,
               onTap: () {
                 setState(() {
-                  _movedItems.add(
-                    _fibonacciData[index],
-                  ); // ✅ ย้ายไอเทมไป BottomSheet
-                  _fibonacciData.removeAt(index); // ✅ ลบออกจากลิสต์หลัก
+                  _highlightedIndex = null;
+
+                  int dataIndex = _fibonacciData.indexWhere(
+                    (item) => item["index"] == originalIndex,
+                  );
+                  if (dataIndex != -1) {
+                    _movedItems.add(_fibonacciData[dataIndex]);
+                    _fibonacciData.removeAt(dataIndex);
+                  }
                 });
 
                 FibonacciBottomSheet.show(
@@ -98,14 +102,9 @@ class _FibonacciListScreenState extends State<FibonacciListScreen> {
                   _fibonacciData,
                   _icons,
                   setState,
-                  () => _highlightedIndex = 0,
                   _scrollToHighlighted,
-                  _highlightRestoredItem, // ✅ ไฮไลต์ไอเทมที่คืนกลับ
-                ).whenComplete(() {
-                  setState(() {
-                    _highlightedIndex = null;
-                  });
-                });
+                  _highlightRestoredItem,
+                );
               },
             );
           },

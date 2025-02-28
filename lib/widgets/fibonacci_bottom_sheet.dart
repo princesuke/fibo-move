@@ -1,4 +1,3 @@
-// lib/widgets/fibonacci_bottom_sheet.dart
 import 'package:flutter/material.dart';
 
 class FibonacciBottomSheet {
@@ -9,7 +8,7 @@ class FibonacciBottomSheet {
     List<Map<String, dynamic>> fibonacciData,
     Map<int, IconData> icons,
     Function setState,
-    Function resetHighlight,
+    // Function resetHighlight,
     Function scrollToHighlighted,
     Function highlightRestoredItem, // ✅ ไฮไลต์ไอเทมที่คืนกลับ
   ) {
@@ -58,21 +57,37 @@ class FibonacciBottomSheet {
                 color: isHighlighted ? Colors.white : null,
               ),
               onTap: () {
+                int restoredIndex = filteredItems[index]["index"];
+
+                int insertPosition = fibonacciData.indexWhere(
+                  (item) => item["index"] > restoredIndex,
+                );
+
+                if (insertPosition == -1) {
+                  insertPosition = fibonacciData.length;
+                }
+
+                restoredIndex = insertPosition;
+
                 setState(() {
                   movedItems.remove(
                     filteredItems[index],
                   ); // ✅ เอาออกจาก Bottom Sheet
                   fibonacciData.insert(
-                    originalIndex,
+                    restoredIndex,
                     filteredItems[index],
                   ); // ✅ คืนค่ากลับไปตำแหน่งเดิม
-                  resetHighlight();
                 });
+                Navigator.of(context).pop();
 
-                highlightRestoredItem(originalIndex); // ✅ ไฮไลต์ไอเทมที่คืนกลับ
-
-                Future.delayed(const Duration(milliseconds: 300), () {
-                  scrollToHighlighted();
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  highlightRestoredItem(
+                    filteredItems[index]["index"],
+                    Colors.red,
+                  );
+                  Future.delayed(const Duration(milliseconds: 300), () {
+                    scrollToHighlighted();
+                  });
                 });
               },
             );
