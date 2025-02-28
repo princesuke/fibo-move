@@ -8,7 +8,6 @@ class FibonacciBottomSheet {
     List<Map<String, dynamic>> fibonacciData,
     Map<int, IconData> icons,
     Function setState,
-    // Function resetHighlight,
     Function scrollToHighlighted,
     Function highlightRestoredItem, // ✅ ไฮไลต์ไอเทมที่คืนกลับ
   ) {
