@@ -1,3 +1,4 @@
-# flutter_application_1
+# Fibonacci Selector
 
-A new Flutter project.
+A Flutter app that displays a list of Fibonacci numbers with icons.  
+Tap to move, highlight, and explore number patterns interactively.
